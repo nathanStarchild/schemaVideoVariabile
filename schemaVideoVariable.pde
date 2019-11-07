@@ -63,37 +63,29 @@ void setup() {
   
   mono = createFont("Ubuntu Mono Bold", 13);
   
-  oscillators.add(new Oscillator(this, 6, 90, 2*PI/(loopFrames), 'q', 'a', 'z', true));
-  oscillators.add(new Oscillator(this, 6, 60, 2*PI/(loopFrames), 'w', 's', 'x', true));
-  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), 'e', 'd', 'c', false));
-  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), 'r', 'f', 'v', false));
-  oscillators.add(new Oscillator(this, 1, 1, 4 * 2 * PI /(loopFrames), 't', 'g', 'b', false));
-  oscillators.add(new Oscillator(this, 20, 40, 2*PI/(loopFrames), 'y', 'h', 'n', true));
-  oscillators.add(new Oscillator(this, 2, 3, 2*PI/(loopFrames), 'u', 'j', 'm', true));
+  oscillators.add(new Oscillator(this, 6, 90, 2*PI/(loopFrames), true));
+  oscillators.add(new Oscillator(this, 6, 60, 2*PI/(loopFrames), true));
+  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), false));
+  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), false));
+  oscillators.add(new Oscillator(this, 1, 1, 4 * 2 * PI /(loopFrames), false));
+  oscillators.add(new Oscillator(this, 20, 40, 2*PI/(loopFrames), true));
+  oscillators.add(new Oscillator(this, 2, 3, 2*PI/(loopFrames), true));
   
-  noiseLoops.add(new NoiseLoop(this, 6, 30, 2, 2*PI/(loopFrames), 'q', 'a', 'Q', 'A', 'z', 0));//r
-  noiseLoops.add(new NoiseLoop(this, 6, 30, 2, 0.82*PI/(loopFrames), 'w', 's', 'W', 'S', 'x', 5));//r2
-  noiseLoops.add(new NoiseLoop(this, -PI/4, PI/4, 2, 2 * PI /(loopFrames), 'e', 'd', 'E', 'D', 'c', 90));//th
-  noiseLoops.add(new NoiseLoop(this, -PI*1.3, PI*1.3, 2, 2 * PI /(loopFrames), 'r', 'f', 'R', 'F', 'v', 92));//th2
-  noiseLoops.add(new NoiseLoop(this, -2.0*PI, 2*PI, 1.1, 2 * PI /(loopFrames), 't', 'g', 'T', 'G', 'b', 150));
-  noiseLoops.add(new NoiseLoop(this, 0.3, 3, 2, 2*PI/(loopFrames), 'y', 'h', 'Y', 'H', 'n', 180));
-  noiseLoops.add(new NoiseLoop(this, 2, 2, 5, 2*PI/(loopFrames), 'u', 'j', 'U', 'J', 'm', 210));
+  noiseLoops.add(new NoiseLoop(2.0, 0.0, 0.0));//r
+  noiseLoops.add(new NoiseLoop(2.0, 5.0, 0.0));//r2
+  noiseLoops.add(new NoiseLoop(2.0, 90.0, 0.0));//th
+  noiseLoops.add(new NoiseLoop(2.0, 92.0, 0.0));//th2
+  noiseLoops.add(new NoiseLoop(2.0, 150.0, 0.0));;
+  noiseLoops.add(new NoiseLoop(2.0, 180.0, 0.0));;
+  noiseLoops.add(new NoiseLoop(2.0, 200.0, 0.0));;  
   
-  noiseLoops.get(0).unPause();
-  noiseLoops.get(1).unPause();
-  noiseLoops.get(2).unPause();
-  noiseLoops.get(3).unPause();
-  noiseLoops.get(4).unPause();
-  noiseLoops.get(5).unPause();
-  
-  
-  rObj = new Param(this, r, oscillators.get(0), noiseLoops.get(0));
-  r2Obj = new Param(this, r2, oscillators.get(1), noiseLoops.get(1));
-  thObj = new Param(this, th, oscillators.get(2), noiseLoops.get(2));
-  th2Obj = new Param(this, th2, oscillators.get(3), noiseLoops.get(3));
-  thRObj = new Param(this, thR, oscillators.get(4), noiseLoops.get(4));
-  zoomObj = new Param(this, zoom, oscillators.get(5), noiseLoops.get(5));
-  speedObj = new Param(this, speed, oscillators.get(6), noiseLoops.get(6));
+  rObj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(0));
+  r2Obj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(1));
+  thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, noiseLoops.get(2));
+  th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, noiseLoops.get(3));
+  thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, noiseLoops.get(4));
+  zoomObj = new Param(0.2, 5, 2*PI/loopFrames, noiseLoops.get(5));
+  speedObj = new Param(2, 3, 2*PI/loopFrames, noiseLoops.get(6));
   
   
   rObj.setMode(1);
@@ -149,8 +141,7 @@ void draw() {
     video.read();
     video.loadPixels();
     calculateFlow();
-  }
-    
+  } 
   r = rObj.getValue();
   r2 = r2Obj.getValue();
   th = thObj.getValue();
@@ -372,14 +363,14 @@ void adjustLoops(float val){
   //zoom = noiseLoops.get(5).getValue();
   //speed = noiseLoops.get(6).getValue();
   
-  noiseLoops.get(0).setMax(map(val, 0, 3, 4, 250));
-  noiseLoops.get(1).setMax(map(val, 0, 3, 4, 250));
-  noiseLoops.get(2).setMin(map(val, 0, 3, -PI/10, -PI/5));
-  noiseLoops.get(2).setMax(map(val, 0, 3, PI/10, PI/5));
-  noiseLoops.get(3).setMin(map(val, 0, 3, -PI/10, -2*PI));
-  noiseLoops.get(3).setMax(map(val, 0, 3, PI/10, 2*PI));
-  noiseLoops.get(4).setMin(map(val, 0, 3, -PI/10, -2*PI));
-  noiseLoops.get(4).setMax(map(val, 0, 3, PI/10, 2*PI));
+  rObj.setMax(map(val, 0, 3, 4, 250));
+  r2Obj.setMax(map(val, 0, 3, 4, 250));
+  thObj.setMin(map(val, 0, 3, -PI/10, -PI/5));
+  thObj.setMax(map(val, 0, 3, PI/10, PI/5));
+  th2Obj.setMin(map(val, 0, 3, -PI/10, -2*PI));
+  th2Obj.setMax(map(val, 0, 3, PI/10, 2*PI));
+  thRObj.setMin(map(val, 0, 3, -PI/10, -2*PI));
+  thRObj.setMax(map(val, 0, 3, PI/10, 2*PI));
   
 }
 

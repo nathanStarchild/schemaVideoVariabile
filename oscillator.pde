@@ -1,22 +1,19 @@
 static public class Oscillator {
   PApplet app;
   
+  OpenSimplexNoise osNoise;
+  
   float min, max, increment, t;
-  char incUp, incDown, pause;
   boolean paused, isSin;
   
-  Oscillator(PApplet papp, float minIn, float maxIn, float inc, char incU, char incD, char p, boolean s) {
+  Oscillator(PApplet papp, float minIn, float maxIn, float inc, boolean s) {
     app = papp;
     min = minIn;
     max = maxIn;
     increment = inc;
-    incUp = incU;
-    incDown = incD;
-    pause = p;
     isSin = s;
     paused = false;
     t = 0;
-    app.registerMethod("keyEvent", this);
   }
   
   public float getValue() {
@@ -31,16 +28,4 @@ static public class Oscillator {
     //return 
   }
   
-  public void keyEvent(KeyEvent event) {
-    char k = event.getKey();
-      if(k == incUp){
-        increment *= 1.1;
-        }
-      if(k == incDown){
-        increment /= 1.1;
-        }
-      //if(k == pause){
-      //  paused = !paused;
-      //  }
-  }
 }

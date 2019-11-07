@@ -2,46 +2,59 @@ import AULib.*;
 
 static public class Param {
   PApplet app;
-  
-  float val;
+    
+  float val, min, max, increment, t;
   boolean paused;
   int mode;
-  Oscillator oscillator;
+  //Oscillator oscillator;
   NoiseLoop noiseLoop;
   Easer easer;
   
-  Param(PApplet papp, float startVal, Oscillator osc, NoiseLoop nl) {
-    app = papp;
-    val = startVal;
+  //Param(PApplet papp, float startVal, Oscillator osc, NoiseLoop nl) {
+  Param(float minIn, float maxIn, float incIn, NoiseLoop nl) {
+    min = minIn;
+    max = maxIn;
+    val = (min + max)/2.0;
     mode = 0;
     paused = false;
-    oscillator = osc;
+    t = 0;
+    increment = incIn;
     noiseLoop = nl;
-    easer = new Easer(app, val);
+    easer = new Easer(app, val, increment*50);
     //app.registerMethod("keyEvent", this);
   }
   
-  public float getValue() {
+  public float getValue(float x) {
     switch(mode){
       case(0):
-        val = easer.getValue();
+        val = easer.getValue(x);
         break;
       case(1)://noiseLoop
-        val = noiseLoop.getValue();
+        val = map(noiseLoop.getValue(x), -1, 1, min, max);
         break;
       case(2)://oscillator
-        val = oscillator.getValue();
-        break;        
+        val = map(sin(x), -1, 1, min, max);
+        break;      
+      case(3)://incrementer
+        val += increment;
+        break;
     }
     return val;
   }
   
+  public float getValue() {
+    if (!paused){
+      t += increment;
+    }
+    return getValue(t);
+  }
+  
   public void setEase(float fac){
-    easer.setEase(fac);
+    easer.setEase(fac, t);
   }
   
   public void switchMode() {
-    mode = (mode + 1) % 3;
+    mode = (mode + 1) % 4;
     switch(mode){
       case(0):
         println("easer mode");
@@ -51,7 +64,10 @@ static public class Param {
         break;
       case(2)://oscillator
         println("oscillator mode");
-        break;        
+        break;    
+      case(3):
+        println("incrementer mode");
+        break;
     }
   }
   
@@ -65,6 +81,14 @@ static public class Param {
   
   public void setMode(int m){
     mode = m % 3;
+  }
+  
+  public void setMin(float m){
+    min = m;
+  }
+  
+  public void setMax(float m){
+    max = m;
   }
   
   //public void keyEvent(KeyEvent event) {
