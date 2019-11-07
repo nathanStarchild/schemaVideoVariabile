@@ -49,6 +49,16 @@ static public class Param {
     return getValue(t);
   }
   
+  public float getValue(float x, float y) {
+    //println("yes, hello");
+    if (!paused){
+      t += increment;
+    }
+    val = map(noiseLoop.getValue(t, x, y), -1, 1, min, max);
+    return val;
+    
+  }
+  
   public void setEase(float fac){
     easer.setEase(fac, t);
   }
@@ -80,7 +90,7 @@ static public class Param {
   }
   
   public void setMode(int m){
-    mode = m % 3;
+    mode = m % 4;
   }
   
   public void setMin(float m){
@@ -89,6 +99,18 @@ static public class Param {
   
   public void setMax(float m){
     max = m;
+  }
+  
+  public void pause(){
+    paused = true;
+  }
+  
+  public void unpause(){
+    paused = false;
+  }
+  
+  public void advance(int n){
+    t += increment * n;
   }
   
   //public void keyEvent(KeyEvent event) {

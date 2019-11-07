@@ -3,6 +3,7 @@ PFont mono;
 ArrayList<Oscillator> oscillators = new ArrayList<Oscillator>();
 ArrayList<NoiseLoop> noiseLoops = new ArrayList<NoiseLoop>();
 Param rObj, r2Obj, thObj, th2Obj, thRObj, zoomObj, speedObj;
+Param cMap, th2Distort, r2Distort;
 color bgCol;
 int frameN = 1;
 
@@ -75,9 +76,12 @@ void setup() {
   noiseLoops.add(new NoiseLoop(2.0, 5.0, 0.0));//r2
   noiseLoops.add(new NoiseLoop(2.0, 90.0, 0.0));//th
   noiseLoops.add(new NoiseLoop(2.0, 92.0, 0.0));//th2
-  noiseLoops.add(new NoiseLoop(2.0, 150.0, 0.0));;
-  noiseLoops.add(new NoiseLoop(2.0, 180.0, 0.0));;
-  noiseLoops.add(new NoiseLoop(2.0, 200.0, 0.0));;  
+  noiseLoops.add(new NoiseLoop(2.0, 150.0, 0.0));
+  noiseLoops.add(new NoiseLoop(2.0, 180.0, 0.0));
+  noiseLoops.add(new NoiseLoop(2.0, 200.0, 0.0));
+  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));  
+  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));  
+  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));    
   
   rObj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(0));
   r2Obj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(1));
@@ -85,15 +89,22 @@ void setup() {
   th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, noiseLoops.get(3));
   thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, noiseLoops.get(4));
   zoomObj = new Param(0.2, 5, 2*PI/loopFrames, noiseLoops.get(5));
-  speedObj = new Param(2, 3, 2*PI/loopFrames, noiseLoops.get(6));
+  speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, noiseLoops.get(6));
+  cMap = new Param(0, 256*3, 2*PI/loopFrames, noiseLoops.get(7));
+  r2Distort = new Param(0, 2, 2*PI/loopFrames, noiseLoops.get(8));
+  th2Distort = new Param(0, 2, 2*PI/loopFrames, noiseLoops.get(9));
   
   
-  rObj.setMode(1);
-  r2Obj.setMode(1);
-  thObj.setMode(1);
-  th2Obj.setMode(1);
-  thRObj.setMode(1);
-  zoomObj.setMode(1);
+  rObj.setMode(0);
+  r2Obj.setMode(0);
+  thObj.setMode(0);
+  th2Obj.setMode(0);
+  thRObj.setMode(0);
+  zoomObj.setMode(0);
+  
+  cMap.pause();
+  r2Distort.pause();
+  th2Distort.pause();
     
   nGon1 = 3;        
   nGon2 = 3;
@@ -149,6 +160,9 @@ void draw() {
   thR = thRObj.getValue();
   zoom = zoomObj.getValue();
   speed = speedObj.getValue();
+  cMap.advance(1);
+  r2Distort.advance(1);
+  th2Distort.advance(1);
         
   float rNew = map(r*cos(0*PI/6 + 6*th), r, -r, r, 10*r/12);
   gap = gapConst + (r - rNew);
@@ -199,6 +213,7 @@ void draw() {
   translate(width/2, height/2);
   translate((w2+cdw2+gap-width)/2, (h2/3)+(cdh2+gap*(sqrt(3)/2)-height)/2);
   translate(-w2-gap, 0);
+  //println(speed);
   float nfu = speed*cos(frameCount*2*PI/(loopFrames));
   float nfv = speed*sin(frameCount*2*PI/(loopFrames));
   for (int j = 0; j < m2; j++) {
@@ -211,7 +226,8 @@ void draw() {
       color c;
       if (imgSrc == 0) {
         //int cn = int(map(noise(800+(i-n2/2)/zoom, 300+(j-m2/2)/zoom, speed*cos(frameCount*2*PI/(loopFrames))), 0, 1, 0, 256*3));
-        int cn = int(map((float)osNoise.eval(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio, nfu, nfv), -1, 1, 0, 256*3));
+        //int cn = int(map((float)osNoise.eval(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio, nfu, nfv), -1, 1, 0, 256*3));
+        int cn = (int)cMap.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
         c = myPalette.getColor(cn%256, 255);
       } else {
         float distFromCenterX = (n2+1)/2.0 - i;
@@ -235,8 +251,10 @@ void draw() {
         
       
       stroke(c);
-      float nv = 1 + 4.0*(float)osNoise.eval(800+(i-n2/2)/(2.0*widthRatio), 300+(j-m2/2)/(2.0*heightRatio), nfu, nfv);
-      float rs = 1 + 4.0*(float)osNoise.eval(1800+(i-n2/2)/(3.0*widthRatio), 1300+(j-m2/2)/(3.0*heightRatio), nfu, nfv);
+      //float nv = 1 + 4.0*(float)osNoise.eval(800+(i-n2/2)/(2.0*widthRatio), 300+(j-m2/2)/(2.0*heightRatio), nfu, nfv);
+      float nv = th2Distort.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
+      //float rs = 1 + 4.0*(float)osNoise.eval(1800+(i-n2/2)/(3.0*widthRatio), 1300+(j-m2/2)/(3.0*heightRatio), nfu, nfv);
+      float rs = r2Distort.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
       nGon(nGon2, i * (w2+gap), j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6, r2*nv+gap, th2*nv);
       nGon(nGon2, i * (w2+gap) + (w2+gap)/2, j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6, r2*nv+gap, th2*nv+(2*PI/6));
       

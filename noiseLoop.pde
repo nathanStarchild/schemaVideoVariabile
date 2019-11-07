@@ -30,7 +30,7 @@ public class NoiseLoop {
   public float getValue(float t, float x, float y) {
     float nfx = radius * cos(t);
     float nfy = radius * sin(t);
-    float ln = (float)osNoise.eval(nfx + xOff, nfy + yOff, x, y);
+    float ln = (float)osNoise.eval(x, y, nfx + xOff, nfy + yOff);
     return ln;
   }  
   
