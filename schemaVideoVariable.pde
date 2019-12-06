@@ -24,6 +24,9 @@ float gapConst2 = 3;
 float zoom = 2.0;
 float speed = 1.0;
 int nGon1, nGon2;
+int lastActivateButton = 0;
+int lastModeButtons = 0;
+int mode;
 
 OpenSimplexNoise osNoise;
 
@@ -50,7 +53,7 @@ String val;
 // since we're doing serial handshaking, 
 // we need to check if we've heard from the microcontroller
 //but are we?
-boolean firstContact = false;
+//boolean firstContact = false;
 
 void setup() {
   //bgCol = color(63, 9, 66);
@@ -62,52 +65,9 @@ void setup() {
   myPalette = new Palette();
   myPalette.setPalette(0);
   
-  mono = createFont("Ubuntu Mono Bold", 13);
+  setMode(0);
   
-  oscillators.add(new Oscillator(this, 6, 90, 2*PI/(loopFrames), true));
-  oscillators.add(new Oscillator(this, 6, 60, 2*PI/(loopFrames), true));
-  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), false));
-  oscillators.add(new Oscillator(this, 1, 1, 2 * PI /(loopFrames), false));
-  oscillators.add(new Oscillator(this, 1, 1, 4 * 2 * PI /(loopFrames), false));
-  oscillators.add(new Oscillator(this, 20, 40, 2*PI/(loopFrames), true));
-  oscillators.add(new Oscillator(this, 2, 3, 2*PI/(loopFrames), true));
-  
-  noiseLoops.add(new NoiseLoop(2.0, 0.0, 0.0));//r
-  noiseLoops.add(new NoiseLoop(2.0, 5.0, 0.0));//r2
-  noiseLoops.add(new NoiseLoop(2.0, 90.0, 0.0));//th
-  noiseLoops.add(new NoiseLoop(2.0, 92.0, 0.0));//th2
-  noiseLoops.add(new NoiseLoop(2.0, 150.0, 0.0));
-  noiseLoops.add(new NoiseLoop(2.0, 180.0, 0.0));
-  noiseLoops.add(new NoiseLoop(2.0, 200.0, 0.0));
-  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));  
-  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));  
-  noiseLoops.add(new NoiseLoop(4., 200.0, 10.0));    
-  
-  rObj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(0));
-  r2Obj = new Param(6, 60, 2*PI/loopFrames, noiseLoops.get(1));
-  thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, noiseLoops.get(2));
-  th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, noiseLoops.get(3));
-  thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, noiseLoops.get(4));
-  zoomObj = new Param(0.2, 5, 2*PI/loopFrames, noiseLoops.get(5));
-  speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, noiseLoops.get(6));
-  cMap = new Param(0, 256*3, 2*PI/loopFrames, noiseLoops.get(7));
-  r2Distort = new Param(0, 2, 2*PI/loopFrames, noiseLoops.get(8));
-  th2Distort = new Param(0, 2, 2*PI/loopFrames, noiseLoops.get(9));
-  
-  
-  rObj.setMode(0);
-  r2Obj.setMode(0);
-  thObj.setMode(0);
-  th2Obj.setMode(0);
-  thRObj.setMode(0);
-  zoomObj.setMode(0);
-  
-  cMap.pause();
-  r2Distort.pause();
-  th2Distort.pause();
-    
-  nGon1 = 3;        
-  nGon2 = 3;
+  mono = createFont("Ubuntu Mono Bold", 13);  
     
   video = new Capture(this, 640/2, 480/2);
   opencv = new OpenCV(this, 640/2, 480/2);
@@ -126,8 +86,9 @@ void setup() {
     heightRatio = zoom/float(m2); 
   }
   
-  //myPort = new Serial(this, "/dev/ttyUSB0", 9600);
-  //myPort.bufferUntil('\n'); 
+  myPort = new Serial(this, "/dev/ttyUSB0", 9600);
+  myPort.bufferUntil('\n'); 
+  myPort.write("A");
   
   osNoise = new OpenSimplexNoise();
 }
@@ -321,15 +282,15 @@ void draw() {
 
 
 void nGon(int n, float x, float y, float r, float thetaInit) {
-  pushMatrix();
-  translate(x, y);
+  //pushMatrix();
+  //translate(x, y);
   beginShape();
   for (int i=0; i<n; i++) {
     float theta = thetaInit + i * 2 * PI / float(n);
-    vertex(r*sin(theta), r*cos(theta));
+    vertex(x+r*sin(theta), y+r*cos(theta));
   }
   endShape(CLOSE);
-  popMatrix();
+  //popMatrix();
 }
 
 void switchImgSrc(){
@@ -398,9 +359,63 @@ void handleSerial(String val){
     println(vals[i]);
   }
   println();
-  rObj.setVal(map(float(vals[1]), 0, 26048, 3, 120));
-  r2Obj.setVal(map(float(vals[2]), 0, 26048, 3, 120));
-  thRObj.setVal(map(float(vals[3]), 0, 26048, -PI, PI));
+  int activateButton =  (int(vals[0]) >> 4) & 0xff;
+  int modeButtons = int(vals[0]) & 0xf;
+  
+  if (activateButton != lastActivateButton) { //on press
+    if (activateButton == 1){
+      println("Activate!");  
+    }
+    lastActivateButton = activateButton;
+  }
+  
+  if (modeButtons != lastModeButtons){
+    println("new mode: " + modeButtons);
+    lastModeButtons = modeButtons;
+  }
+  
+  
+  
+  //rObj.setVal(map(float(vals[1]), 0, 53, 3, 120));
+  //r2Obj.setVal(map(float(vals[2]), 0, 53, 3, 120));
+  //thRObj.setVal(map(float(vals[3]), 0, 5, -PI, PI));
+  rObj.setEaseByTarget(map(float(vals[1]), 0, 53, 3, 120));
+  r2Obj.setEaseByTarget(map(float(vals[2]), 0, 53, 3, 120));
+  thRObj.setEaseByTarget(map(float(vals[3]), 0, 5, -PI, PI));
+}
+
+void setMode(int n){
+  switch(n){
+    case(0):
+      mode = 0;
+      myPalette.setPalette(0);  
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 0.0, 0.0));
+      r2Obj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
+      r2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
+      th2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(0);
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      break;
+  }
 }
 
 void keyPressed() {
@@ -546,18 +561,18 @@ void serialEvent(Serial myPort) {
     val = trim(val);
     //println(val);
   
-    if (firstContact) {
+    //if (firstContact) {
       handleSerial(val);
       //println("that val again is: " + val);
       myPort.write("A");
-    } else {
-      if (val.equals("A")) {
-        myPort.clear();
-        firstContact = true;
-        myPort.write("A");
-        println("contact");
-      }
-    }
+    //} else {
+    //  if (val.equals("A")) {
+    //    myPort.clear();
+    //    firstContact = true;
+    //    myPort.write("A");
+    //    println("contact");
+    //  }
+    //}
 }
 
 //void captureEvent(Capture c) {

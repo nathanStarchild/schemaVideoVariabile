@@ -1,11 +1,11 @@
 import AULib.*;
 
-static public class Param {
+public class Param {
   PApplet app;
     
   float val, min, max, increment, t;
   boolean paused;
-  int mode;
+  int mode, last;
   //Oscillator oscillator;
   NoiseLoop noiseLoop;
   Easer easer;
@@ -20,7 +20,8 @@ static public class Param {
     t = 0;
     increment = incIn;
     noiseLoop = nl;
-    easer = new Easer(app, val, increment*50);
+    easer = new Easer(val, increment*50);
+    last = millis();
     //app.registerMethod("keyEvent", this);
   }
   
@@ -44,7 +45,8 @@ static public class Param {
   
   public float getValue() {
     if (!paused){
-      t += increment;
+      //t += increment;
+      advanceLive(1);
     }
     return getValue(t);
   }
@@ -52,7 +54,8 @@ static public class Param {
   public float getValue(float x, float y) {
     //println("yes, hello");
     if (!paused){
-      t += increment;
+      //t += increment;
+      advanceLive(1);
     }
     val = map(noiseLoop.getValue(t, x, y), -1, 1, min, max);
     return val;
@@ -60,7 +63,11 @@ static public class Param {
   }
   
   public void setEase(float fac){
-    easer.setEase(fac, t);
+    easer.setEaseByFactor(fac, t);
+  }
+  
+  public void setEaseByTarget(float targ){
+    easer.setEaseByTarget(targ, t);
   }
   
   public void switchMode() {
@@ -107,10 +114,17 @@ static public class Param {
   
   public void unpause(){
     paused = false;
+    last = millis();
   }
   
   public void advance(int n){
     t += increment * n;
+  }
+  
+  public void advanceLive(int n){
+    int now = millis();
+    t += n * increment * (now-last)*30/1000.0;
+    last = now;
   }
   
   //public void keyEvent(KeyEvent event) {
