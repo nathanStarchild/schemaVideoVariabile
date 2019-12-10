@@ -2,10 +2,13 @@
 PFont mono;
 ArrayList<Oscillator> oscillators = new ArrayList<Oscillator>();
 ArrayList<NoiseLoop> noiseLoops = new ArrayList<NoiseLoop>();
+ArrayList<String> commands = new ArrayList<String>();
 Param rObj, r2Obj, thObj, th2Obj, thRObj, zoomObj, speedObj;
 Param cMap, th2Distort, r2Distort;
 color bgCol;
 int frameN = 1;
+int frameLast = 0;
+boolean showData = false;
 
 //Schema Params
 int n, n2, m, m2;
@@ -76,11 +79,11 @@ void setup() {
     widthRatio = video.width/float(n2);
     heightRatio = video.height/float(m2); 
   }
-  if (imgSrc == 1) {
+  //if (imgSrc == 1) {
     img = loadImage("testPattern.png");
     widthRatio = img.width/float(n2);
     heightRatio = img.height/float(m2); 
-  }
+  //}
   if (imgSrc == 0) {
     widthRatio = zoom/float(n2);
     heightRatio = zoom/float(m2); 
@@ -91,9 +94,14 @@ void setup() {
   myPort.write("A");
   
   osNoise = new OpenSimplexNoise();
+  commands.add("");
+  commands.add("");
+  commands.add("");
+  commands.add("");
 }
 
 void draw() {
+  int now = millis();
   //imgSrc = newImgSrc;
   if (imgSrc == 2) {
     //frameN++;
@@ -101,7 +109,7 @@ void draw() {
     boolean exists = false;
     String fName = "";
     while (!exists){
-      frameN++;
+      frameN += (now - frameLast)*30/1000;
       fName = "frame" + nf((frameN)%3215 + 1, 4) + ".jpg";
       File f = dataFile(fName);
       exists = f.isFile();
@@ -121,9 +129,9 @@ void draw() {
   thR = thRObj.getValue();
   zoom = zoomObj.getValue();
   speed = speedObj.getValue();
-  cMap.advance(1);
-  r2Distort.advance(1);
-  th2Distort.advance(1);
+  cMap.advanceLive(1);
+  r2Distort.advanceLive(1);
+  th2Distort.advanceLive(1);
         
   float rNew = map(r*cos(0*PI/6 + 6*th), r, -r, r, 10*r/12);
   gap = gapConst + (r - rNew);
@@ -202,8 +210,8 @@ void draw() {
           int imY = min(max(video.height/2 - dfcYIm, 0), video.height-1);
           int imIdx = (video.width - imX - 1) + imY * video.width;//mirror the video
           c = video.pixels[imIdx];
-        } else {
-          int imX = min(max(img.width/2 - dfcXIm, 0), img.width-1);
+        } else { //<>//
+          int imX = min(max(img.width/2 - dfcXIm, 0), img.width-1); //<>//
           int imY = min(max(img.height/2 - dfcYIm, 0), img.height-1);
           int imIdx = imX + imY * img.width;
           c = img.pixels[imIdx];
@@ -216,8 +224,8 @@ void draw() {
       float nv = th2Distort.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
       //float rs = 1 + 4.0*(float)osNoise.eval(1800+(i-n2/2)/(3.0*widthRatio), 1300+(j-m2/2)/(3.0*heightRatio), nfu, nfv);
       float rs = r2Distort.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
-      nGon(nGon2, i * (w2+gap), j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6, r2*nv+gap, th2*nv);
-      nGon(nGon2, i * (w2+gap) + (w2+gap)/2, j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6, r2*nv+gap, th2*nv+(2*PI/6));
+      nGon(nGon2, i * (w2+gap), j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6, r2*rs+gap, th2*nv);
+      nGon(nGon2, i * (w2+gap) + (w2+gap)/2, j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6, r2*rs+gap, th2*nv+(2*PI/6));
       
       popStyle();
     }
@@ -266,11 +274,22 @@ void draw() {
   popStyle();
   popMatrix();
   
-  pushStyle();
-    stroke(255, 50, 50);
-    fill(255, 50, 50);
-    text(frameRate, 10, 60);
-  popStyle();
+  if (showData){
+    pushStyle();
+      stroke(255, 50, 50);
+      fill(200, 200, 200);
+      text("frameRate = " + nf(frameRate, 0, 2) + ";", 10, 10);
+      text("thetaR = " + nf(thR, 0, 2) + ";", 10, 10 + 1 * 12);
+      text("theta = " + nf(th, 0, 2) + ";", 10, 10 + 2 * 12);
+      text("theta2 = " + nf(th2, 0, 2) + ";", 10, 10 + 3 * 12);
+      text("r = " + nf(r, 0, 2) + ";", 10, 10 + 4 * 12);
+      text("r2 = " + nf(r2, 0, 2) + ";", 10, 10 + 5 * 12);
+      text(commands.get(0), width-150, height - 3 - 3 * 12);
+      text(commands.get(1), width-150, height - 3 - 2 * 12);
+      text(commands.get(2), width-150, height - 3 - 1 * 12);
+      text(commands.get(3), width-150, height - 3 - 0 * 12);
+    popStyle();
+  }
   
   //saveFrame("dsp/frame####.jpg");
 
@@ -278,6 +297,7 @@ void draw() {
   if (frameN >= 3215){
     //exit();
   }
+  frameLast = now;
 }
 
 
@@ -289,12 +309,17 @@ void nGon(int n, float x, float y, float r, float thetaInit) {
     float theta = thetaInit + i * 2 * PI / float(n);
     vertex(x+r*sin(theta), y+r*cos(theta));
   }
-  endShape(CLOSE);
+  endShape(CLOSE); //<>//
   //popMatrix();
 }
 
 void switchImgSrc(){
-  imgSrc = (imgSrc + 1) % 4;
+  int imN = (imgSrc + 1) % 4;
+  setImgSrc(imN);
+}
+
+void setImgSrc(int imN) {
+  imgSrc = imN;
   if (imgSrc == 3) {
     video.start();
     widthRatio = video.width/float(n2);
@@ -302,121 +327,13 @@ void switchImgSrc(){
   } else if (imgSrc == 0) {
     video.stop();
   } else if (imgSrc == 1) {
+    println("whaddup?"); //<>//
     img = loadImage("testPattern.png");
     widthRatio = img.width/float(n2);
     heightRatio = img.height/float(m2); 
-  }
-  
+  } 
 }
 
-void calculateFlow() {
-  opencv.loadImage(video);
-  opencv.calculateOpticalFlow();
-  PVector aveFlow = opencv.getAverageFlow();
-  float tVal = abs(aveFlow.x) + abs(aveFlow.y);
-  tVal = round(tVal * 10)/10.0;
-  if (tVal > flowSteady) {
-    wait = 3;
-  }
-  if (!(tVal != tVal)){
-    if (tVal > flowSteady || 0.04 > flowSteady) {
-        println("up " + tVal + ", " + flowSteady);
-        flowSteady = lerp(abs(tVal), flowSteady, 0.9);
-    } else {
-      wait--;
-      if (0 >= wait) {
-        println("down " + tVal + ", " + flowSteady);
-        flowSteady = lerp(abs(tVal), flowSteady, 0.95);
-      }
-    }
-    adjustLoops(abs(flowSteady));  
-  }
-}
-
-void adjustLoops(float val){
-  //th = noiseLoops.get(2).getValue();
-  //th2 = noiseLoops.get(3).getValue();
-  //thR = noiseLoops.get(4).getValue();
-  //r = noiseLoops.get(0).getValue();
-  //r2 = noiseLoops.get(1).getValue();
-  //zoom = noiseLoops.get(5).getValue();
-  //speed = noiseLoops.get(6).getValue();
-  
-  rObj.setMax(map(val, 0, 3, 4, 250));
-  r2Obj.setMax(map(val, 0, 3, 4, 250));
-  thObj.setMin(map(val, 0, 3, -PI/10, -PI/5));
-  thObj.setMax(map(val, 0, 3, PI/10, PI/5));
-  th2Obj.setMin(map(val, 0, 3, -PI/10, -2*PI));
-  th2Obj.setMax(map(val, 0, 3, PI/10, 2*PI));
-  thRObj.setMin(map(val, 0, 3, -PI/10, -2*PI));
-  thRObj.setMax(map(val, 0, 3, PI/10, 2*PI));
-  
-}
-
-void handleSerial(String val){
-  String[] vals = val.split(",");
-  for (int i=0; i< vals.length; i++){
-    println(vals[i]);
-  }
-  println();
-  int activateButton =  (int(vals[0]) >> 4) & 0xff;
-  int modeButtons = int(vals[0]) & 0xf;
-  
-  if (activateButton != lastActivateButton) { //on press
-    if (activateButton == 1){
-      println("Activate!");  
-    }
-    lastActivateButton = activateButton;
-  }
-  
-  if (modeButtons != lastModeButtons){
-    println("new mode: " + modeButtons);
-    lastModeButtons = modeButtons;
-  }
-  
-  
-  
-  //rObj.setVal(map(float(vals[1]), 0, 53, 3, 120));
-  //r2Obj.setVal(map(float(vals[2]), 0, 53, 3, 120));
-  //thRObj.setVal(map(float(vals[3]), 0, 5, -PI, PI));
-  rObj.setEaseByTarget(map(float(vals[1]), 0, 53, 3, 120));
-  r2Obj.setEaseByTarget(map(float(vals[2]), 0, 53, 3, 120));
-  thRObj.setEaseByTarget(map(float(vals[3]), 0, 5, -PI, PI));
-}
-
-void setMode(int n){
-  switch(n){
-    case(0):
-      mode = 0;
-      myPalette.setPalette(0);  
-      
-      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 0.0, 0.0));
-      r2Obj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
-      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
-      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
-      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
-      zoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
-      speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
-      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
-      r2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
-      th2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
-      
-      rObj.setMode(0);
-      r2Obj.setMode(0);
-      thObj.setMode(0);
-      th2Obj.setMode(0);
-      thRObj.setMode(0);
-      zoomObj.setMode(0);
-      
-      cMap.pause();
-      r2Distort.pause();
-      th2Distort.pause();
-        
-      nGon1 = 3;        
-      nGon2 = 3;
-      break;
-  }
-}
 
 void keyPressed() {
   switch(key){
@@ -538,7 +455,8 @@ void keyPressed() {
       speedObj.switchMode();
       break;
     case(' '):
-      switchImgSrc();
+      //switchImgSrc();
+      showData = !showData;
       break;
   }
 }
