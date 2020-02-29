@@ -46,7 +46,11 @@ public class Param {
   public float getValue() {
     if (!paused){
       //t += increment;
-      advanceLive(1);
+      if (live) {
+        advanceLive(1);
+      } else {
+        advance(1);
+      }
     }
     return getValue(t);
   }
@@ -55,7 +59,11 @@ public class Param {
     //println("yes, hello");
     if (!paused){
       //t += increment;
-      advanceLive(1);
+      if (live) {
+        advanceLive(1);
+      } else {
+        advance(1);
+      }
     }
     val = map(noiseLoop.getValue(t, x, y), -1, 1, min, max);
     return val;

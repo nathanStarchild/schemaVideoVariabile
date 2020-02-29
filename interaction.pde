@@ -143,17 +143,21 @@ void setMode(int n){
     case(0):
       mode = 0;
       myPalette.setPalette(0);  
+      setImgSrc(2);
       
       rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 0.0, 0.0));
-      r2Obj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      r2Obj = new Param(3, 90, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
       thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
       th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
       thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
       zoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
-      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
-      r2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
-      th2Distort = new Param(0, 2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 10.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.5, 2.5, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       
       rObj.setMode(0);
       r2Obj.setMode(0);
@@ -161,6 +165,12 @@ void setMode(int n){
       th2Obj.setMode(0);
       thRObj.setMode(0);
       zoomObj.setMode(0);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 10;
+      imZoomObj.easer.duration = imZoomObj.increment * 10;
+      
       
       cMap.pause();
       r2Distort.pause();
@@ -395,4 +405,227 @@ void newCommand(String com){
   println(com);
   commands.add(com);
   commands.remove(0);
+}
+
+
+void serialEvent(Serial myPort) {
+  //println("serial Event");
+  val = myPort.readStringUntil('\n');
+  //make sure our data isn't empty before continuing
+  if (val == null) {
+    println("null");
+    return;
+  }
+    //trim whitespace and formatting characters (like carriage return)
+    val = trim(val);
+    //println(val);
+  
+    //if (firstContact) {
+      handleSerial(val);
+      //println("that val again is: " + val);
+      myPort.write("A");
+    //} else {
+    //  if (val.equals("A")) {
+    //    myPort.clear();
+    //    firstContact = true;
+    //    myPort.write("A");
+    //    println("contact");
+    //  }
+    //}
+}
+
+
+void keyPressed() {
+  switch(key){
+    case('q'):
+      rObj.setEase(1.1);
+      break;
+    case('a'):
+      rObj.setEase(1 / 1.1);
+      break;
+    case('Q'):
+      rObj.setEase(1.6);
+      break;
+    case('A'):
+      rObj.setEase(1 / 1.6);
+      break;
+    case('w'):
+      r2Obj.setEase(1.1);
+      break;
+    case('s'):
+      r2Obj.setEase(1 / 1.1);
+      break;
+    case('W'):
+      r2Obj.setEase(1.6);
+      break;
+    case('S'):
+      r2Obj.setEase(1 / 1.6);
+      break;
+    case('e'):
+      thObj.setEase(1.1);
+      break;
+    case('d'):
+      thObj.setEase(1 / 1.1);
+      break;
+    case('E'):
+      thObj.setEase(1.6);
+      break;
+    case('D'):
+      thObj.setEase(1 / 1.6);
+      break;
+    case('r'):
+      th2Obj.setEase(1.1);
+      break;
+    case('f'):
+      th2Obj.setEase(1 / 1.1);
+      break;
+    case('R'):
+      th2Obj.setEase(1.6);
+      break;
+    case('F'):
+      th2Obj.setEase(1 / 1.6);
+      break;
+    case('t'):
+      thRObj.setEase(1.1);
+      break;
+    case('g'):
+      thRObj.setEase(1 / 1.1);
+      break;
+    case('T'):
+      thRObj.setEase(1.6);
+      break;
+    case('G'):
+      thRObj.setEase(1 / 1.6);
+      break;
+    case('y'):
+      zoomObj.setEase(1.1);
+      break;
+    case('h'):
+      zoomObj.setEase(1 / 1.1);
+      break;
+    case('Y'):
+      zoomObj.setEase(1.6);
+      break;
+    case('H'):
+      zoomObj.setEase(1 / 1.6);
+      break;
+    case('u'):
+      speedObj.setEase(1.1);
+      break;
+    case('j'):
+      speedObj.setEase(1 / 1.1);
+      break;
+    case('U'):
+      speedObj.setEase(1.6);
+      break;
+    case('J'):
+      speedObj.setEase(1 / 1.6);
+      break;
+    case('i'):
+      r2SpeedObj.setEase(1.1);
+      break;
+    case('k'):
+      r2SpeedObj.setEase(1 / 1.1);
+      break;
+    case('I'):
+      r2SpeedObj.setEase(1.6);
+      break;
+    case('K'):
+      r2SpeedObj.setEase(1 / 1.6);
+      break;
+    case('o'):
+      th2SpeedObj.setEase(1.1);
+      break;
+    case('l'):
+      th2SpeedObj.setEase(1 / 1.1);
+      break;
+    case('O'):
+      th2SpeedObj.setEase(1.6);
+      break;
+    case('L'):
+      th2SpeedObj.setEase(1 / 1.6);
+      break;
+    case('}'):
+      nGon1 += 1;
+      break;
+    case('{'):
+      nGon1 = max(nGon1 - 1, 0);
+      break;
+    case(']'):
+      nGon2 += 1;
+      break;
+    case('['):
+      nGon2 = max(nGon2 - 1, 0);
+      break;
+    case('z'):
+      rObj.switchMode();
+      break;
+    case('x'):
+      r2Obj.switchMode();
+      break;
+    case('c'):
+      thObj.switchMode();
+      break;
+    case('v'):
+      th2Obj.switchMode();
+      break;
+    case('b'):
+      thRObj.switchMode();
+      break;
+    case('n'):
+      zoomObj.switchMode();
+      break;
+    case('m'):
+      speedObj.switchMode();
+      break;
+    case('.'):
+      imZoomObj.setEase(1.1);
+      break;
+    case(','):
+      imZoomObj.setEase(1 / 1.1);
+      break;
+    case('>'):
+      imZoomObj.setEase(1.6);
+      break;
+    case('<'):
+      imZoomObj.setEase(1 / 1.6);
+      break;
+    case ('+'):
+      setMode(mode + 1);
+      break;
+    case('-'):
+      myRecorder.startRecording();
+      frameN = 1;
+      df = 1;
+      break;
+    case(' '):
+      switchImgSrc();
+      //showData = !showData;
+      //myRecorder.startRecording();
+      break;
+    case('/'):
+      fillOn = !fillOn;
+      break;
+    case('?'):
+      frameOn = !frameOn;
+      break;
+    case('|'):
+      showData = !showData;
+      break;
+  }
+  if (key == CODED) {
+    if (keyCode == DOWN) {
+      shiftY++;
+    } else if (keyCode == UP) {
+      shiftY--;
+    } else if (keyCode == RIGHT) {
+      shiftX++;
+    } else if (keyCode == LEFT) {
+      shiftX--;
+    } 
+  }
+}
+
+void mousePressed() {
+  myPalette.nextPalette();
 }

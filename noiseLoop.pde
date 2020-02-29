@@ -42,4 +42,8 @@ public class NoiseLoop {
     paused = false;
   }
   
+  public void setRadius(float r) {
+    radius = r;    
+  }
+  
 }
