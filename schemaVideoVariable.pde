@@ -9,7 +9,7 @@ Recorder myRecorder;
 color bgCol;
 int frameN = 1;
 int frameLast = 0;
-boolean showData = false;
+boolean showData = true;
 boolean fillOn = true;
 boolean frameOn;
 int shiftX = 0;
@@ -41,8 +41,8 @@ int mode;
 
 OpenSimplexNoise osNoise;
 
-int vidFrames = 5*30;
-int loopFrames = 10*30;
+int vidFrames = 676;
+int loopFrames = 100*30;
 int df = 1;
 
 
@@ -59,6 +59,8 @@ int newImgSrc = 0;
 
 int wait = 60;
 float flowSteady = 0.5;
+float oldR = 1;
+boolean shrinking = false;
 
 //Serial biz
 import processing.serial.*; //import the Serial library
@@ -138,27 +140,8 @@ void draw() {
     video.loadPixels();
     calculateFlow();
   } 
-  r = rObj.getValue();
-  r2 = r2Obj.getValue();
-  th = thObj.getValue();
-  th2 = th2Obj.getValue();
-  thR = thRObj.getValue();
-  zoom = zoomObj.getValue();
-  imZoom = imZoomObj.getValue();
-  //speed = speedObj.getValue();
-  cMap.noiseLoop.setRadius(speedObj.getValue());
-  r2Distort.noiseLoop.setRadius(r2SpeedObj.getValue());
-  th2Distort.noiseLoop.setRadius(th2SpeedObj.getValue());
-  if (live) {
-    cMap.advanceLive(1);
-    r2Distort.advanceLive(1);
-    th2Distort.advanceLive(1);
-  } else {
-    cMap.advance(1);
-    r2Distort.advance(1);
-    th2Distort.advance(1);
-  }
-    
+  
+  updateParams();
         
   float rNew = map(r*cos(0*PI/6 + 6*th), r, -r, r, 10*r/12);
   gap = gapConst + (r - rNew);
@@ -183,9 +166,9 @@ void draw() {
   m2 -= m2 % 4 - 4;
   
   if (imgSrc == 3) {
-    widthRatio = video.width/float(n2);
-    heightRatio = video.height/float(m2);
-    imZoom = heightRatio;
+    widthRatio = zoom*video.width/float(n2);
+    heightRatio = zoom*video.height/float(m2);
+    imRatio = imZoom*video.height/float(m2);
   } else if (imgSrc == 0) {
     widthRatio = zoom*float(n2);
     heightRatio = zoom*float(m2); 
@@ -212,43 +195,44 @@ void draw() {
         translate(width/2, height/2);
         translate((w2+cdw2+gap-width)/2, (h2/3)+(cdh2+gap*(sqrt(3)/2)-height)/2);
         translate(-w2-gap, 0);
-        float nfu = speed*cos(frameCount*2*PI/(loopFrames));
-        float nfv = speed*sin(frameCount*2*PI/(loopFrames));
         for (int j = 0; j < m2; j++) {
           pushMatrix();
             if (j%2==0) {
               translate((w2+gap)/2, 0);
             }
+            float y1 = j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6;
+            float y2 = j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6;
             for (int i = 0; i < n2+1; i++) {
+              float x1 = i * (w2+gap);
+              float x2 = i * (w2+gap) + (w2+gap)/2;
               color c;
+              float distFromCenterX = x1 - ((width-cdw2)/2.0);
+              float distFromCenterY = y1 - ((height-cdh2)/2.0);
               if (imgSrc == 0) {
-                int cn = (int)cMap.getValue(800+(i-n2/2)/widthRatio, 300+(j-m2/2)/heightRatio);
+                int cn = (int)cMap.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
                 c = myPalette.getColor(cn%256, 255);
               } else {
-                float distFromCenterX = shiftX + ((n2+1)/2.0) - i;
-                float distFromCenterY = shiftY + (m2/2.0) - j;
-                
-                int dfcXIm = floor(imRatio*distFromCenterX);
-                int dfcYIm = floor(imRatio*distFromCenterY*(sqrt(3)/2));
+                int dfcXIm = floor(shiftX + (distFromCenterX)/imZoom);
+                int dfcYIm = floor(shiftY + (distFromCenterY)/imZoom);
                 
                 if (imgSrc == 3) {
-                  int imX = min(max(video.width/2 - dfcXIm, 0), video.width-1);
-                  int imY = min(max(video.height/2 - dfcYIm, 0), video.height-1);
+                  int imX = min(max(int(video.width/(2) + dfcXIm), 0), video.width-1);
+                  int imY = min(max(int(video.height/(2) + dfcYIm), 0), video.height-1);
                   int imIdx = (video.width - imX - 1) + imY * video.width;//mirror the video
                   c = video.pixels[imIdx];
                 } else { //<>//
-                  int imX = min(max(img.width/2 - dfcXIm, 0), img.width-1); //<>//
-                  int imY = min(max(img.height/2 - dfcYIm, 0), img.height-1);
+                  int imX = min(max(int(img.width/(2) + dfcXIm), 0), img.width-1); //<>//
+                  int imY = min(max(int(img.height/(2) + dfcYIm), 0), img.height-1);
                   int imIdx = imX + imY * img.width;
                   c = img.pixels[imIdx];
                 }
               }
                 
               stroke(c);
-              float nv = th2Distort.getValue(800+(i-n2/2)/widthRatio, 800+(j-m2/2)/heightRatio);
-              float rs = r2Distort.getValue(800+(i-n2/2)/widthRatio, 800+(j-m2/2)/heightRatio);
-              nGon(nGon2, i * (w2+gap), j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6, r2*rs+gap, th2+(nv*2*PI));
-              nGon(nGon2, i * (w2+gap) + (w2+gap)/2, j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6, r2*rs+gap, th2+(nv*2*PI)+(2*PI/6));
+              float nv = th2Distort.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
+              float rs = r2Distort.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
+              nGon(nGon2, x1, y1, r2*rs+gap, th2+(nv*2*PI));
+              nGon(nGon2, x2, y2, r2*rs+gap, th2+(nv*2*PI)+(2*PI/6));
             }
           popMatrix();
         }
@@ -323,6 +307,28 @@ void draw() {
   frameLast = now;
 }
 
+void updateParams() {
+  r = rObj.getValue();
+  r2 = r2Obj.getValue();
+  th = thObj.getValue();
+  th2 = th2Obj.getValue();
+  thR = thRObj.getValue();
+  zoom = zoomObj.getValue();
+  imZoom = imZoomObj.getValue();
+  //speed = speedObj.getValue();
+  cMap.noiseLoop.setRadius(speedObj.getValue());
+  r2Distort.noiseLoop.setRadius(r2SpeedObj.getValue());
+  th2Distort.noiseLoop.setRadius(th2SpeedObj.getValue());
+  if (live) {
+    cMap.advanceLive(1);
+    r2Distort.advanceLive(1);
+    th2Distort.advanceLive(1);
+  } else {
+    cMap.advance(1);
+    r2Distort.advance(1);
+    th2Distort.advance(1);
+  }
+}
 
 void nGon(int n, float x, float y, float r, float thetaInit) {
   beginShape();

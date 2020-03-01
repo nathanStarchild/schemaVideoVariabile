@@ -1,5 +1,3 @@
-
-
 void calculateFlow() {
   opencv.loadImage(video);
   opencv.calculateOpticalFlow();
@@ -7,32 +5,26 @@ void calculateFlow() {
   float tVal = abs(aveFlow.x) + abs(aveFlow.y);
   tVal = round(tVal * 10)/10.0;
   if (tVal > flowSteady) {
-    wait = 3;
+    wait = 30;
   }
-  if (!(tVal != tVal)){
-    if (tVal > flowSteady || 0.04 > flowSteady) {
+  if (!(tVal != tVal)){//who would write this condition?
+    if (tVal > flowSteady) { //|| 0.04 > flowSteady) {
         println("up " + tVal + ", " + flowSteady);
-        flowSteady = lerp(abs(tVal), flowSteady, 0.9);
+        flowSteady = lerp(abs(tVal), flowSteady, 0.95);
+    } else if (0.04 > flowSteady) {
+        flowSteady = lerp(abs(tVal), flowSteady, 0.6);      
     } else {
       wait--;
       if (0 >= wait) {
         println("down " + tVal + ", " + flowSteady);
-        flowSteady = lerp(abs(tVal), flowSteady, 0.95);
+        flowSteady = lerp(abs(tVal), flowSteady, 0.97);
       }
     }
     adjustLoops(abs(flowSteady));  
   }
 }
 
-void adjustLoops(float val){
-  //th = noiseLoops.get(2).getValue();
-  //th2 = noiseLoops.get(3).getValue();
-  //thR = noiseLoops.get(4).getValue();
-  //r = noiseLoops.get(0).getValue();
-  //r2 = noiseLoops.get(1).getValue();
-  //zoom = noiseLoops.get(5).getValue();
-  //speed = noiseLoops.get(6).getValue();
-  
+void adjustLoops(float val){  
   //rObj.setMax(map(val, 0, 3, 4, 250));
   //r2Obj.setMax(map(val, 0, 3, 4, 250));
   //thObj.setMin(map(val, 0, 3, -PI/10, -PI/5));
@@ -43,10 +35,23 @@ void adjustLoops(float val){
   //thRObj.setMax(map(val, 0, 3, PI/10, 2*PI));
   
   //if (mode == 1) {
-    r2Distort.setMax(map(val, 0, 3, 1, 6));
-    th2Distort.setMax(map(val, 0, 3, 1, 6));
-    r2Distort.setMin(map(val, 0, 3, 1, -5));
-    th2Distort.setMin(map(val, 0, 3, 1, -5));
+    r2Distort.setMax(map(val, 0.1, 3, 1, 6));
+    th2Distort.setMax(map(val, 0.1, 3, 0, 6));
+    r2Distort.setMin(map(val, 0.1, 3, 1, -2));
+    th2Distort.setMin(map(val, 0.1, 3, 0, -5));
+    if (val < 0.2 && !shrinking) {
+      shrinking = true;
+      oldR = r2Obj.easer.eVal;
+      r2Obj.easer.setEaseMode(3);
+      r2Obj.easer.duration = r2Obj.increment * 200;
+      r2Obj.setEaseByTarget(oldR/1.8);
+    }
+    if (val >= 0.8 && shrinking) {
+      shrinking = false;
+      r2Obj.easer.setEaseMode(3);
+      r2Obj.easer.duration = r2Obj.increment * 120;
+      r2Obj.setEaseByTarget(oldR);
+    }
   //}
   
 }
@@ -150,13 +155,13 @@ void setMode(int n){
       thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
       th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
       thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
-      zoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
-      speedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      zoomObj = new Param(200, 400, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/300, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
       r2Distort = new Param(-0.5, 2.5, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      r2SpeedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      r2SpeedObj = new Param(loopFrames/300, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      th2SpeedObj = new Param(0.5, 1.5, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2SpeedObj = new Param(loopFrames/300, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       imZoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       
       rObj.setMode(0);
@@ -615,13 +620,13 @@ void keyPressed() {
   }
   if (key == CODED) {
     if (keyCode == DOWN) {
-      shiftY++;
+      shiftY += 10;
     } else if (keyCode == UP) {
-      shiftY--;
+      shiftY -= 10;
     } else if (keyCode == RIGHT) {
-      shiftX++;
+      shiftX += 10;
     } else if (keyCode == LEFT) {
-      shiftX--;
+      shiftX -= 10;
     } 
   }
 }
