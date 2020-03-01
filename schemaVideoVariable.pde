@@ -41,9 +41,10 @@ int mode;
 
 OpenSimplexNoise osNoise;
 
-int vidFrames = 676;
-int loopFrames = 100*30;
+int vidFrames = 126;
+int loopFrames = 140*30;
 int df = 1;
+int vidRate = 1;
 
 
 //Image biz
@@ -119,20 +120,17 @@ void setup() {
 void draw() {
   int now = millis();
   if (imgSrc == 2) {
-    //boolean exists = false;
-    String fName = "";
-    //while (!exists){
-      //frameN += (now - frameLast)*30/1000;
-      //fName = "rame" + nf((frameN)%3215 + 1, 4) + ".jpg";
-      fName = "photos/vid/frame" + nf(frameN, 4) + ".jpg";
+    if (frameCount % vidRate == 0){
+      String fName = "";
+      fName = "photos/vidCamilla/frame" + nf(frameN, 4) + ".jpg";
       //File f = dataFile(fName);
       //exists = f.isFile();
-       frameN += df;
-       if (frameN == 1 || frameN == vidFrames) {
-         df *= -1;
-       }
-    //}
-    img = loadImage(fName);
+      frameN = max(min(frameN + df, vidFrames), 1);
+      if (frameN == 1 || frameN == vidFrames) {
+        df *= -1;
+      }
+      img = loadImage(fName);
+    }
     img.loadPixels();
   }
   if (imgSrc == 3) {
