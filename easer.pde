@@ -1,4 +1,4 @@
-static public class Easer {
+public class Easer {
   
   float tStart, tEnd, duration;
   float val, sVal, eVal;
@@ -51,6 +51,7 @@ static public class Easer {
     sVal = val;
     eVal *= fac;
     println("new target: " + eVal);
+    newCommand("param.ease.setTarget("+eVal+");");
   }
   
   public void setEaseByTarget(float targ, float x){
@@ -60,6 +61,7 @@ static public class Easer {
     sVal = val;
     eVal = targ;
     println("new target: " + eVal);
+    newCommand("param.ease.setTarget("+eVal+");");
   }
   
   public void setEaseMode(int mode){

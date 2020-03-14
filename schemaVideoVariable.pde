@@ -15,7 +15,7 @@ boolean frameOn;
 int shiftX = 0;
 int shiftY = 0;
 
-boolean live = false;
+boolean live = true;
 
 //Schema Params
 int n, n2, m, m2;
@@ -41,8 +41,9 @@ int mode;
 
 OpenSimplexNoise osNoise;
 
-int vidFrames = 126;
-int loopFrames = 140*30;
+int vidFrames = 136;
+int loopFrames = 60*60;
+//int loopFrames = vidFrames*2;
 int df = 1;
 int vidRate = 1;
 
@@ -75,7 +76,8 @@ String val;
 void setup() {
   //bgCol = color(63, 9, 66);
   bgCol = color(0);
-  size(864, 1080);
+  size(800, 1080);
+  //size(1728, 788);
   fill(bgCol);
   noStroke();
   frameRate(30);
@@ -87,7 +89,7 @@ void setup() {
   myRecorder = new Recorder(this);
   //myRecorder.startRecording();
   
-  mono = createFont("Ubuntu Mono Bold", 13);  
+  mono = createFont("Ubuntu Mono Bold", 14);  
     
   video = new Capture(this, 640/2, 480/2);
   opencv = new OpenCV(this, 640/2, 480/2);
@@ -285,18 +287,22 @@ void draw() {
   
   if (showData){
     pushStyle();
+      int cmdOffx = 180;
       stroke(255, 50, 50);
       fill(200, 200, 200);
       text("frameRate = " + nf(frameRate, 0, 2) + ";", 10, 10);
-      text("thetaR = " + nf(thR, 0, 2) + ";", 10, 10 + 1 * 12);
-      text("theta = " + nf(th, 0, 2) + ";", 10, 10 + 2 * 12);
-      text("theta2 = " + nf(th2, 0, 2) + ";", 10, 10 + 3 * 12);
-      text("r = " + nf(r, 0, 2) + ";", 10, 10 + 4 * 12);
-      text("r2 = " + nf(r2, 0, 2) + ";", 10, 10 + 5 * 12);
-      text(commands.get(0), width-150, height - 3 - 3 * 12);
-      text(commands.get(1), width-150, height - 3 - 2 * 12);
-      text(commands.get(2), width-150, height - 3 - 1 * 12);
-      text(commands.get(3), width-150, height - 3 - 0 * 12);
+      //text("thetaR = " + nf(thR, 0, 2) + ";", 10, 10 + 1 * 12);
+      //text("theta = " + nf(th, 0, 2) + ";", 10, 10 + 2 * 12);
+      text("theta = " + nf(th2, 0, 2) + ";", 10, 10 + 1 * 12);
+      //text("r = " + nf(r, 0, 2) + ";", 10, 10 + 4 * 12);
+      text("r = " + nf(r2, 0, 2) + ";", 10, 10 + 2 * 12);
+      text("imgZoom = " + nf(imZoom, 0, 2) + ";", 10, 10 + 3 * 12);
+      text("noiseZoom = " + nf(zoom, 0, 2) + ";", 10, 10 + 4 * 12);
+      text("nGon = " + nf(nGon2, 0, 2) + ";", 10, 10 + 5 * 12);
+      text(commands.get(0), width-(commands.get(0).length()*6.5), height - 3 - 3 * 12);
+      text(commands.get(1), width-(commands.get(1).length()*6.5), height - 3 - 2 * 12);
+      text(commands.get(2), width-(commands.get(2).length()*6.5), height - 3 - 1 * 12);
+      text(commands.get(3), width-(commands.get(3).length()*6.5), height - 3 - 0 * 12);
     popStyle();
   }
   

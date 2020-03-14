@@ -150,18 +150,18 @@ void setMode(int n){
       myPalette.setPalette(0);  
       setImgSrc(2);
       
-      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/400, 0.0, 0.0));
-      r2Obj = new Param(3, 90, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200, 0.0, 0.0));
+      r2Obj = new Param(3, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
       thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
       th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
       thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
       zoomObj = new Param(200, 400, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
-      speedObj = new Param(loopFrames/400, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
       r2Distort = new Param(-0.5, 2.5, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      r2SpeedObj = new Param(loopFrames/400, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      r2SpeedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      th2SpeedObj = new Param(loopFrames/400, loopFrames/300, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2SpeedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       imZoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       
       rObj.setMode(0);
@@ -173,8 +173,8 @@ void setMode(int n){
       r2SpeedObj.setMode(0);
       th2SpeedObj.setMode(0);
       imZoomObj.setMode(0);
-      r2Obj.easer.duration = r2Obj.increment * 10;
-      imZoomObj.easer.duration = imZoomObj.increment * 10;
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
       
       
       cMap.pause();
@@ -407,7 +407,7 @@ void setMode(int n){
 }
 
 void newCommand(String com){
-  println(com);
+  //println(com);
   commands.add(com);
   commands.remove(0);
 }
@@ -444,9 +444,11 @@ void keyPressed() {
   switch(key){
     case('1'):
       vidRate++;
+      newCommand("setVidRate("+vidRate+");");
       break;
     case('!'):
       vidRate = max(1, vidRate - 1);
+      newCommand("setVidRate("+vidRate+");");
       break;
     case('q'):
       rObj.setEase(1.1);
@@ -558,15 +560,19 @@ void keyPressed() {
       break;
     case('}'):
       nGon1 += 1;
+      newCommand("setPolygon("+nGon1+");");
       break;
     case('{'):
       nGon1 = max(nGon1 - 1, 0);
+      newCommand("setPolygon("+nGon1+");");
       break;
     case(']'):
       nGon2 += 1;
+      newCommand("setPolygon("+nGon2+");");
       break;
     case('['):
       nGon2 = max(nGon2 - 1, 0);
+      newCommand("setPolygon("+nGon2+");");
       break;
     case('z'):
       rObj.switchMode();
@@ -611,6 +617,7 @@ void keyPressed() {
       break;
     case(' '):
       switchImgSrc();
+      newCommand("setImageSource("+imgSrc+");");
       //showData = !showData;
       //myRecorder.startRecording();
       break;

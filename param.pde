@@ -83,15 +83,19 @@ public class Param {
     switch(mode){
       case(0):
         println("easer mode");
+        newCommand("param.setMode('easer');");
         break;
       case(1)://noiseLoop
         println("noise loop mode");
+        newCommand("param.setMode('noise loop');");
         break;
       case(2)://oscillator
         println("oscillator mode");
+        newCommand("param.setMode('oscillator');");
         break;    
       case(3):
         println("incrementer mode");
+        newCommand("param.setMode('incrementer');");
         break;
     }
   }
