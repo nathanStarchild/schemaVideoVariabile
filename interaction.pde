@@ -147,10 +147,345 @@ void setMode(int n){
   switch(n%8){
     case(0):
       mode = 0;
-      myPalette.setPalette(0);  
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
       setImgSrc(2);
       
-      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200, 0.0, 0.0));
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(29.7, 29.7, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(2798, 2098, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1000.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1000.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(1.7, 2.8, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      // r2Obj.easer.setEaseMode(3);
+      // r2Obj.easer.setDuration(r2Obj.increment * loopFrames / 5.);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(1);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(1);
+      // r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 6;
+      gapConst2 = 4;
+      shiftY += -10*8*4;
+      break;
+    case(84)://008hugh
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(72, 72, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(598, 598, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/600.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/600.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(2.5, 2.5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      r2Obj.easer.setEaseMode(3);
+      r2Obj.easer.setDuration(r2Obj.increment * loopFrames / 5.);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(0);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      // r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 6;
+      gapConst2 = 4;
+      break;
+    case(83)://007
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(72, 72, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(598, 598, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/2100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/2100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(2.5, 2.5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      r2Obj.easer.setEaseMode(3);
+      r2Obj.easer.setDuration(r2Obj.increment * loopFrames / 5.);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(0);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      // r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 2;
+      gapConst2 = 4;
+      break;
+    case(82)://006meg
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(23.6, 23.6, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(4568, 900, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.2, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(1.585, 1.589, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(2);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      gapConst2 = 4;
+      break;
+    case(81)://005debbie
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(23.6, 23.6, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(2568, 600, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.0, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(1.3125, 1.3125, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(2);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      gapConst2 = 4;
+      break;
+    case(80)://004segyo
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(36.6, 38.6, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(2568, 200, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.0, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(2.1, 2.1, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      thObj.setMode(0);
+      th2Obj.setMode(3);
+      thRObj.setMode(0);
+      zoomObj.setMode(2);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      gapConst2 = 6;
+      break;
+    case(79)://003elena
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(26.6, 38.6, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(52768, 52768, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.0, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(2.1, 2.1, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(1);
+      thObj.setMode(0);
+      th2Obj.setMode(3);
+      thRObj.setMode(0);
+      zoomObj.setMode(0);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      gapConst2 = 4;
+      break;
+    case(78)://002Isadora
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
+      r2Obj = new Param(28.6, 28.6, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
+      thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
+      th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
+      thRObj = new Param(2*PI-2.0*PI, 2*PI+2*PI, 2*PI/loopFrames, new NoiseLoop(2.0, 150.0, 0.0));
+      zoomObj = new Param(768, 768, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2Distort = new Param(-0.0, 2.0, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(1.45, 1.45, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      
+      rObj.setMode(0);
+      r2Obj.setMode(0);
+      thObj.setMode(0);
+      th2Obj.setMode(0);
+      thRObj.setMode(0);
+      zoomObj.setMode(0);
+      r2SpeedObj.setMode(0);
+      th2SpeedObj.setMode(0);
+      imZoomObj.setMode(0);
+      r2Obj.easer.duration = r2Obj.increment * 50;
+      imZoomObj.easer.duration = imZoomObj.increment * 50;
+      
+      
+      cMap.pause();
+      r2Distort.pause();
+      th2Distort.pause();
+        
+      nGon1 = 3;        
+      nGon2 = 3;
+      break;
+    case(77)://rc001
+      mode = 0;
+      myPalette.setPalette(1);  
+      // setImgSrc(3);
+      setImgSrc(2);
+      
+      rObj = new Param(6, 60, 2*PI/loopFrames, new NoiseLoop(loopFrames/1200.0, 0.0, 0.0));
       r2Obj = new Param(3, 60, 2*PI/loopFrames, new NoiseLoop(2.0, 5.0, 0.0));
       thObj = new Param(2*PI-PI/4., 2*PI+PI/4., 2*PI/loopFrames, new NoiseLoop(2.0, 90.0, 0.0));
       th2Obj = new Param(2*PI-PI*1.3, 2*PI+PI*1.3, 2*PI/loopFrames, new NoiseLoop(2.0, 92.0, 0.0));
@@ -158,11 +493,11 @@ void setMode(int n){
       zoomObj = new Param(200, 400, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       speedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       cMap = new Param(0, 256*3, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      r2Distort = new Param(-0.5, 2.5, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      r2SpeedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      r2Distort = new Param(-0.0, 2.0, 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
+      r2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
       th2Distort = new Param(1/8.,(1/8.) + 2/3., 2*PI/loopFrames, new NoiseLoop(4., 200.0, 1100.0));
-      th2SpeedObj = new Param(loopFrames/1200, loopFrames/1100, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
-      imZoomObj = new Param(0.2, 5, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
+      th2SpeedObj = new Param(loopFrames/1200.0, loopFrames/1100.0, 2*PI/loopFrames, new NoiseLoop(2.0, 200.0, 0.0));
+      imZoomObj = new Param(1, 1, 2*PI/loopFrames, new NoiseLoop(2.0, 180.0, 0.0));
       
       rObj.setMode(0);
       r2Obj.setMode(0);
@@ -452,9 +787,11 @@ void keyPressed() {
       break;
     case('q'):
       rObj.setEase(1.1);
+      r2Obj.setEaseByTarget(72);
       break;
     case('a'):
       rObj.setEase(1 / 1.1);
+      r2Obj.setEaseByTarget(19.4);
       break;
     case('Q'):
       rObj.setEase(1.6);
@@ -612,8 +949,11 @@ void keyPressed() {
       break;
     case('-'):
       myRecorder.startRecording();
-      frameN = 1;
+      frameN = vidStart;
       df = 1;
+      break;
+    case('_'):
+      myRecorder.snapshot();
       break;
     case(' '):
       switchImgSrc();

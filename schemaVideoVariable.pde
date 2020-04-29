@@ -1,5 +1,7 @@
 //So many globals....
 PFont mono;
+PGraphics pg;
+PGraphics theG;
 ArrayList<Oscillator> oscillators = new ArrayList<Oscillator>();
 ArrayList<NoiseLoop> noiseLoops = new ArrayList<NoiseLoop>();
 ArrayList<String> commands = new ArrayList<String>();
@@ -7,15 +9,15 @@ Param rObj, r2Obj, thObj, th2Obj, thRObj, zoomObj, speedObj;
 Param cMap, th2Distort, r2Distort, r2SpeedObj, th2SpeedObj, imZoomObj;
 Recorder myRecorder;
 color bgCol;
-int frameN = 1;
-int frameLast = 0;
-boolean showData = true;
-boolean fillOn = true;
+boolean showData = false;
+boolean fillOn = false;
 boolean frameOn;
 int shiftX = 0;
 int shiftY = 0;
+int wdth, hght;
+boolean usePG = true;
 
-boolean live = true;
+boolean live = false;
 
 //Schema Params
 int n, n2, m, m2;
@@ -41,11 +43,26 @@ int mode;
 
 OpenSimplexNoise osNoise;
 
-int vidFrames = 136;
-int loopFrames = 60*60;
+// int vidFrames = 136;
+// int vidStart = 398;
+// int vidEnd = 582;
+// int loopFrames = int(23.8 * 30);
+
+
+int vidFrames = 516;
+int vidStart = 294;
+int vidEnd = vidStart + vidFrames - 1;
+// int vidEnd = 580;
+// int vidStart = vidEnd - vidFrames/2;
+int shiftStart = 398;
+int shiftEnd = 582;
+int loopFrames = vidFrames*2;
+
 //int loopFrames = vidFrames*2;
 int df = 1;
 int vidRate = 1;
+int frameN = vidStart;
+int frameLast = 0;
 
 
 //Image biz
@@ -74,19 +91,29 @@ String val;
 //boolean firstContact = false;
 
 void setup() {
+  println(loopFrames);
   //bgCol = color(63, 9, 66);
   bgCol = color(0);
-  size(800, 1080);
+  size(600, 750);
+  if (usePG) {
+    pg = createGraphics(1080, 1350);
+    theG = pg;
+    wdth = pg.width;
+    hght = pg.height;
+  } else {
+    theG = g;
+    wdth = width;
+    hght = height;
+  }
   //size(1728, 788);
-  fill(bgCol);
-  noStroke();
+  theG.fill(bgCol);
+  theG.noStroke();
   frameRate(30);
   myPalette = new Palette();
   myPalette.setPalette(0);
   
-  setMode(0);
   
-  myRecorder = new Recorder(this);
+  myRecorder = new Recorder(this, theG);
   //myRecorder.startRecording();
   
   mono = createFont("Ubuntu Mono Bold", 14);  
@@ -107,6 +134,9 @@ void setup() {
     widthRatio = zoom/float(n2);
     heightRatio = zoom/float(m2); 
   }
+
+
+  setMode(0);
   
   //myPort = new Serial(this, "/dev/ttyUSB0", 9600);
   //myPort.bufferUntil('\n'); 
@@ -120,18 +150,22 @@ void setup() {
 }
 
 void draw() {
+  theG.beginDraw();
   int now = millis();
   if (imgSrc == 2) {
     if (frameCount % vidRate == 0){
       String fName = "";
-      fName = "photos/vidCamilla/frame" + nf(frameN, 4) + ".jpg";
+      fName = "reflectionConnection/current/frame" + nf(frameN, 5) + ".jpg";
       //File f = dataFile(fName);
       //exists = f.isFile();
-      frameN = max(min(frameN + df, vidFrames), 1);
-      if (frameN == 1 || frameN == vidFrames) {
+      frameN = max(min(frameN + df, vidEnd), vidStart);
+      if (frameN == vidStart || frameN == vidEnd) {
         df *= -1;
       }
       img = loadImage(fName);
+      // float t = norm(frameN, shiftStart, shiftEnd);
+      // float d = AULib.ease(2, t);
+      // shiftX = -340+int(lerp(0, 286, d));
     }
     img.loadPixels();
   }
@@ -156,12 +190,12 @@ void draw() {
   w2 = r2 * sqrt(3);
   h2 = (sqrt(3)/2)*w2;
 
-  n = floor(width/(w+gap));
-  m = floor(height/(h+gap*(sqrt(3)/2)));
+  n = floor(wdth/(w+gap));
+  m = floor(hght/(h+gap*(sqrt(3)/2)));
   n -= n % 2 - 2;
   m -= m % 4 - 8;
-  n2 = floor(width/(w2+gapConst2));
-  m2 = floor(height/(h2+gapConst2*(sqrt(3)/2)));
+  n2 = floor(wdth/(w2+gapConst2));
+  m2 = floor(hght/(h2+gapConst2*(sqrt(3)/2)));
   n2 -= n2 % 2 - 0;
   m2 -= m2 % 4 - 4;
   
@@ -179,26 +213,26 @@ void draw() {
     imRatio = imZoom*img.height/float(m2);
   }
 
-  cdw = width - (n * (w+gap));
-  cdh = height - (m * (h+gap*(sqrt(3)/2)));
-  cdw2 = width - (n2 * (w2+gapConst2));
-  cdh2 = height - (m2 * (h2+gapConst2*(sqrt(3)/2)));
+  cdw = wdth - (n * (w+gap));
+  cdh = hght - (m * (h+gap*(sqrt(3)/2)));
+  cdw2 = wdth - (n2 * (w2+gapConst2));
+  cdh2 = hght - (m2 * (h2+gapConst2*(sqrt(3)/2)));
   
-  background(bgCol);
-  pushMatrix();    
-    pushMatrix();
-      pushStyle();
-        stroke(0, 150, 255);
+  theG.background(bgCol);
+  theG.pushMatrix();    
+    theG.pushMatrix();
+      theG.pushStyle();
+        theG.stroke(0, 150, 255);
         gap = gapConst2;
-        strokeWeight(gap);
-        noFill();
-        translate(width/2, height/2);
-        translate((w2+cdw2+gap-width)/2, (h2/3)+(cdh2+gap*(sqrt(3)/2)-height)/2);
-        translate(-w2-gap, 0);
+        theG.strokeWeight(gap);
+        theG.noFill();
+        theG.translate(wdth/2, hght/2);
+        theG.translate((w2+cdw2+gap-wdth)/2, (h2/3)+(cdh2+gap*(sqrt(3)/2)-hght)/2);
+        theG.translate(-w2-gap, 0);
         for (int j = 0; j < m2; j++) {
-          pushMatrix();
+          theG.pushMatrix();
             if (j%2==0) {
-              translate((w2+gap)/2, 0);
+              theG.translate((w2+gap)/2, 0);
             }
             float y1 = j*(h2+gap*(sqrt(3)/2)) - cos(3*th2)*(h2+gap*(sqrt(3)/2))/6;
             float y2 = j*(h2+gap*(sqrt(3)/2))  - cos(3*(th2+(2*PI/6)))*(h2+gap*(sqrt(3)/2))/6;
@@ -206,8 +240,8 @@ void draw() {
               float x1 = i * (w2+gap);
               float x2 = i * (w2+gap) + (w2+gap)/2;
               color c;
-              float distFromCenterX = x1 - ((width-cdw2)/2.0);
-              float distFromCenterY = y1 - ((height-cdh2)/2.0);
+              float distFromCenterX = x1 - ((wdth-cdw2)/2.0);
+              float distFromCenterY = y1 - ((hght-cdh2)/2.0);
               if (imgSrc == 0) {
                 int cn = (int)cMap.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
                 c = myPalette.getColor(cn%256, 255);
@@ -228,87 +262,91 @@ void draw() {
                 }
               }
                 
-              stroke(c);
+              theG.stroke(c);
               float nv = th2Distort.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
               float rs = r2Distort.getValue(800+ distFromCenterX / zoom, 300 + distFromCenterY / zoom);
               nGon(nGon2, x1, y1, r2*rs+gap, th2+(nv*2*PI));
               nGon(nGon2, x2, y2, r2*rs+gap, th2+(nv*2*PI)+(2*PI/6));
             }
-          popMatrix();
+          theG.popMatrix();
         }
-      popStyle();
-    popMatrix();
+      theG.popStyle();
+    theG.popMatrix();
     
     if (fillOn) {
       gap = gapConst + (r - rNew);
-      pushMatrix();
+      theG.pushMatrix();
       
-        translate(width/2, height/2);
-        rotate(thR);
-        translate(-width/2, -height/2);
-        translate((w+cdw+gap)/2, (h/3)+(cdh+gap*(sqrt(3)/2))/2);
-        translate(-w-gap, 0);
-        pushStyle();
-          fill(bgCol);
-          noStroke();
+        theG.translate(width/2, hght/2);
+        theG.rotate(thR);
+        theG.translate(-wdth/2, -hght/2);
+        theG.translate((w+cdw+gap)/2, (h/3)+(cdh+gap*(sqrt(3)/2))/2);
+        theG.translate(-w-gap, 0);
+        theG.pushStyle();
+          theG.fill(bgCol);
+          theG.noStroke();
           for (int j = 0; j < m; j++) {
-            pushMatrix();
+            theG.pushMatrix();
               if (j%2==0) {
                 //fill(100,0,100);
-                translate((w+gap)/2, 0);
+                theG.translate((w+gap)/2, 0);
               }
               for (int i = 0; i < n+1; i++) {
                 //rect(i*(w+gap), j*(h+gap), w, h);
                 nGon(nGon1, i * (w+gap), j*(h+gap*(sqrt(3)/2)) - cos(3*th)*(h+gap*(sqrt(3)/2))/6, rNew, th);
                 nGon(nGon1, i * (w+gap) + (w+gap)/2, j*(h+gap*(sqrt(3)/2)) - cos(3*(th+(2*PI/6)))*(h+gap*(sqrt(3)/2))/6, rNew, th+(2*PI/6));
               }
-            popMatrix();
+            theG.popMatrix();
           }
-        popStyle();
-      popMatrix();
+        theG.popStyle();
+      theG.popMatrix();
     }
-  popMatrix();
+  theG.popMatrix();
   
   if (frameOn) {
-    pushMatrix();
-      pushStyle();
-        translate(width/2, height/2);
-        noFill();
-        stroke(bgCol);
-        float sw = sqrt(2*width/2*width/2) - width/2;
-        strokeWeight(sw);
-        ellipseMode(RADIUS);
-        ellipse(0, 0, (width + sw)/2, (height+sw)/2);
-      popStyle();
-    popMatrix();
+    theG.pushMatrix();
+      theG.pushStyle();
+        theG.translate(wdth/2, hght/2);
+        theG.noFill();
+        theG.stroke(bgCol);
+        float sw = sqrt(2*wdth/2*wdth/2) - wdth/2;
+        theG.strokeWeight(sw);
+        theG.ellipseMode(RADIUS);
+        theG.ellipse(0, 0, (wdth + sw)/2, (hght+sw)/2);
+      theG.popStyle();
+    theG.popMatrix();
   }
   
   //println(n*m + n2*m2);
   
   if (showData){
-    pushStyle();
+    theG.pushStyle();
       int cmdOffx = 180;
-      stroke(255, 50, 50);
-      fill(200, 200, 200);
-      text("frameRate = " + nf(frameRate, 0, 2) + ";", 10, 10);
+      theG.stroke(255, 50, 50);
+      theG.fill(200, 200, 200);
+      theG.text("frameRate = " + nf(frameRate, 0, 2) + ";", 10, 10);
       //text("thetaR = " + nf(thR, 0, 2) + ";", 10, 10 + 1 * 12);
       //text("theta = " + nf(th, 0, 2) + ";", 10, 10 + 2 * 12);
-      text("theta = " + nf(th2, 0, 2) + ";", 10, 10 + 1 * 12);
+      theG.text("theta = " + nf(th2, 0, 2) + ";", 10, 10 + 1 * 12);
       //text("r = " + nf(r, 0, 2) + ";", 10, 10 + 4 * 12);
-      text("r = " + nf(r2, 0, 2) + ";", 10, 10 + 2 * 12);
-      text("imgZoom = " + nf(imZoom, 0, 2) + ";", 10, 10 + 3 * 12);
-      text("noiseZoom = " + nf(zoom, 0, 2) + ";", 10, 10 + 4 * 12);
-      text("nGon = " + nf(nGon2, 0, 2) + ";", 10, 10 + 5 * 12);
-      text(commands.get(0), width-(commands.get(0).length()*6.5), height - 3 - 3 * 12);
-      text(commands.get(1), width-(commands.get(1).length()*6.5), height - 3 - 2 * 12);
-      text(commands.get(2), width-(commands.get(2).length()*6.5), height - 3 - 1 * 12);
-      text(commands.get(3), width-(commands.get(3).length()*6.5), height - 3 - 0 * 12);
-    popStyle();
+      theG.text("r = " + nf(r2, 0, 2) + ";", 10, 10 + 2 * 12);
+      theG.text("imgZoom = " + nf(imZoom, 0, 2) + ";", 10, 10 + 3 * 12);
+      theG.text("noiseZoom = " + nf(zoom, 0, 2) + ";", 10, 10 + 4 * 12);
+      theG.text("nGon = " + nf(nGon2, 0, 2) + ";", 10, 10 + 5 * 12);
+      theG.text(commands.get(0), wdth-(commands.get(0).length()*6.5), hght - 3 - 3 * 12);
+      theG.text(commands.get(1), wdth-(commands.get(1).length()*6.5), hght - 3 - 2 * 12);
+      theG.text(commands.get(2), wdth-(commands.get(2).length()*6.5), hght - 3 - 1 * 12);
+      theG.text(commands.get(3), wdth-(commands.get(3).length()*6.5), hght - 3 - 0 * 12);
+    theG.popStyle();
   }
   
   myRecorder.update();
 
   frameLast = now;
+  theG.endDraw();
+  if (usePG) {
+    image(pg, 0, 0, width, height);
+  }
 }
 
 void updateParams() {
@@ -335,12 +373,12 @@ void updateParams() {
 }
 
 void nGon(int n, float x, float y, float r, float thetaInit) {
-  beginShape();
+  theG.beginShape();
   for (int i=0; i<n+1; i++) {
     float theta = thetaInit + i * 2 * PI / float(n);
-    vertex(x+r*sin(theta), y+r*cos(theta));
+    theG.vertex(x+r*sin(theta), y+r*cos(theta));
   }
-  endShape(); //<>//
+  theG.endShape(); //<>//
 }
 
 void switchImgSrc(){
@@ -358,7 +396,7 @@ void setImgSrc(int imN) {
     video.stop();
   } else if (imgSrc == 1) {
     println("whaddup?"); //<>//
-    img = loadImage("Walter_Benjamin.jpg");
+    img = loadImage("photos/headshot36.jpg");
     widthRatio = img.width/float(n2);
     heightRatio = img.height/float(m2); 
   } 

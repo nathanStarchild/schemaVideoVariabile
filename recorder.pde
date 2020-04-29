@@ -5,17 +5,21 @@ public class Recorder {
   int count;
   String title;
   int startFrame;
+  int snapCount;
+  PGraphics theG;
     
   
   
   //Param(PApplet papp, float startVal, Oscillator osc, NoiseLoop nl) {
-  Recorder(PApplet papp) {
+  Recorder(PApplet papp, PGraphics pg) {
     recording = false;
     n = 0;
     count = 0;
     app = papp;    
     title = "recorded";
     startFrame = 0;
+    theG = pg;
+    snapCount = 0;
   }
   
   public void startRecording() {
@@ -28,12 +32,24 @@ public class Recorder {
   
   public void update() {    
     if (recording) {
-      app.saveFrame("" + title + "" + count + "/frame" + nf(n, 5) + ".jpg");
+      theG.save("" + title + "" + count + "/frame" + nf(n, 5) + ".jpg");
       n++;
     }
     if ( recording && app.frameCount > startFrame + loopFrames) {
       recording = false;
       println("done recording");
     }
+    if ( recording && app.frameCount == startFrame + (loopFrames/2.0)) {
+      df = -df;
+      println("flipIt");
+    }
+    if ( recording && app.frameCount == startFrame + (3*loopFrames/4.0)) {
+      println("go!");
+    }
+  }
+
+  public void snapshot() {
+    theG.save("snap" + nf(snapCount, 3) + ".jpg" );
+    snapCount++;
   }
 }
